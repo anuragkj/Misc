@@ -1,20 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-# Student Management System
-
 import csv
 import pandas as pd
 import os
 from os.path import exists
-#from IPython.display import display #For tabular view of dataframe. Works only in Jupyter
-# Define global variables
 
-
-# In[2]:
 
 
 def display_menu():
@@ -35,7 +23,6 @@ def display_menu():
 def add_student():
     global student_fields
     global student_database
-    global id_list
     print("-------------------------")
     print("Add Student Information")
     print("-------------------------")
@@ -44,14 +31,15 @@ def add_student():
     student_data = []
     for field in student_fields:
         if(field == 'id' or field == 'roll' or field == 'age'):
-            value = int(input("Enter " + field + "(Integer values): "))
+            value = int(input("Enter " + field + "(Integer value): "))
             student_data.append(value)
         else:
             value = (input("Enter " + field + ": "))
             student_data.append(value)
-    if student_data[0] in id_list:
+    id_list = list(student_database['id'])
+    if int(student_data[0]) in id_list:
         print("Student ID already present in database! Please add unique ID")
-        add_student()
+        return
     else:
         choice = input("\nPress y to confirm entry[y/n]: ")
         if(choice == 'y'):
@@ -82,7 +70,7 @@ def view_students():
 def search_student():
     global student_fields
     global student_database
-    global id_list
+    
 
     print("--- Search Students ---")
     print("Select the criteria for search: ")
@@ -94,11 +82,11 @@ def search_student():
     print("6. Search by Phone")
     choice = int(input("Enter your choice:"))
     if(choice == 1):
-        search_inp = input("Enter the ID: ")
+        search_inp = int(input("Enter the ID: "))
         search_df = student_database[student_database['id'] == search_inp]
         if(search_df.shape[0] != 0):
             print("--- Results ---")
-            print("Id: "+ str(search_df['id'][0]))
+            print("ID: "+ str(search_df['id'][0]))
             print("Roll: "+ str(search_df['roll'][0]))
             print("Name: "+ str(search_df['name'][0]))
             print("Age: "+ str(search_df['age'][0]))
@@ -108,7 +96,7 @@ def search_student():
             print("ID No. not found in our database")
           
     elif(choice == 2):
-        search_inp = input("Enter the roll: ")
+        search_inp = int(input("Enter the roll: "))
         search_df = student_database[student_database['roll'] == search_inp]
         if(search_df.shape[0] != 0):
             print("--- Results ---")
@@ -126,7 +114,7 @@ def search_student():
             print("Name not found in our database")
           
     elif(choice == 4):
-        search_inp = input("Enter the age: ")
+        search_inp = int(input("Enter the age: "))
         search_df = student_database[student_database['age'] == search_inp]
         if(search_df.shape[0] != 0):
             print("--- Results ---")
@@ -152,7 +140,7 @@ def search_student():
         else:
             print("Phone not found in our database")
           
-    input("Press any key to continue")
+    input("Press any key to continue: ")
 
 
 # In[6]:
@@ -163,59 +151,57 @@ def update_student():
     global student_database
 
     print("--- Update Student ---")
-    roll = input("Enter roll no. to update: ")
-    index_student = None
-    updated_data = []
-    with open(student_database, "r", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        counter = 0
-        for row in reader:
-            if len(row) > 0:
-                if roll == row[0]:
-                    index_student = counter
-                    print("Student Found: at index ",index_student)
-                    student_data = []
-                    for field in student_fields:
-                        value = input("Enter " + field + ": ")
-                        student_data.append(value)
-                    updated_data.append(student_data)
-                else:
-                    updated_data.append(row)
-                counter += 1
+    c_id = int(input("Enter ID of student to update: "))
+
+    student_data = [0]
+    for field in student_fields:
+        if(field == 'id'):
+            pass
+        elif(field == 'roll' or field == 'age'):
+            value = int(input("Enter " + field + "(Integer values): "))
+            student_data.append(value)
+        else:
+            value = (input("Enter " + field + ": "))
+            student_data.append(value)
+    id_list = list(student_database['id'])
+    if c_id in id_list:
+        choice = input("\nPress y to confirm entry[y/n]: ")
+        if(choice == 'y'):
+            for p in range(1, len(student_fields)):
+                student_database.loc[student_database['id'] == c_id, student_fields[p]] = student_data[p]
             
+            
+            student_database.to_csv('students.csv', index = False)
+            print("Data updated successfully")
+            return
+        elif(choice == 'n'):
+            print("Data not updated")
+            return
+    else:
+        print("Provided ID does not exist")
 
-
-# In[7]:
+    input("Press any key to continue: ")
 
 
 def delete_student():
     global student_fields
     global student_database
+    
 
     print("--- Delete Student ---")
-    roll = input("Enter roll no. to delete: ")
-    student_found = False
-    updated_data = []
-    with open(student_database, "r", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        counter = 0
-        for row in reader:
-            if len(row) > 0:
-                if roll != row[0]:
-                    updated_data.append(row)
-                    counter += 1
-                else:
-                    student_found = True
-
-    if student_found is True:
-        with open(student_database, "w", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerows(updated_data)
-        print("Roll no. ", roll, "deleted successfully")
+    d_id = int(input("Enter ID to delete: "))
+    id_list = list(student_database['id'])
+    if d_id in id_list:
+        indexNames = student_database[ student_database['id'] == d_id ].index
+        student_database.drop(indexNames , inplace=True)
+        student_database.to_csv('students.csv', index = False)
+        print("Data removed successfully")
     else:
-        print("Roll No. not found in our database")
+        print("Student ID does not exist")
 
-    input("Press any key to continue")
+    
+
+    input("Press any key to continue: ")
 
 
 # In[ ]:
@@ -230,7 +216,7 @@ if(os.path.exists('students.csv')):   #If student.csv already exists we read it 
 else:
     student_database = pd.DataFrame(columns = student_fields)
 
-id_list = list(student_database['id'])
+
 while True:
     display_menu()
     
