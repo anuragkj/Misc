@@ -1,3 +1,4 @@
+#https://www.hackerrank.com/challenges/the-grid-search/problem?isFullScreen=true
 #!/bin/python3
 
 import math
