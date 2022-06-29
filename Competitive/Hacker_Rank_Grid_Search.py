@@ -1,4 +1,3 @@
-#https://www.hackerrank.com/challenges/the-grid-search/problem?isFullScreen=true
 #!/bin/python3
 
 import math
@@ -24,14 +23,25 @@ def gridSearch(G, P):
     print(P_row)
     for i in range(G_row - P_row + 1):
         for j in range(G_col - P_col + 1):
-            if(G[i][j:j+P_col] == P[0]):
-                print(G[i][j:j+P_col])
-                print("hehe")
-                print(G[i+1:i+P_row][j:j+P_col])
-                print("hehe")
-                print(P[1:][:])
-                if(G[i+1: i+ P_row][j:j+P_col] == P[1:][:]):
-                    return("YES")
+            if G[i][j] == P[0][0]:
+                flag = 1
+                if(flag == 0):
+                    continue
+                m = i
+                n = j
+                for k in range(P_row):
+                    if flag == 0:
+                        break
+                    n = j
+                    for l in range(P_col):
+                        if( G[m][n] != P[k][l]):
+                            flag = 0
+                            break
+                        n+=1
+                    m+=1
+                if flag == 1:
+                    return("YES")            
+                        
                  
     return("NO")
 
@@ -70,4 +80,3 @@ if __name__ == '__main__':
         fptr.write(result + '\n')
 
     fptr.close()
-
